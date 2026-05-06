@@ -1,0 +1,18 @@
+@font-face {
+    font-family: 'Zona Pro';
+    src: url('ZonaPro-Bold.woff2') format('woff2'),
+        url('ZonaPro-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Zona Pro';
+    src: url('ZonaPro-ExtraLight.woff2') format('woff2'),
+        url('ZonaPro-ExtraLight.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+

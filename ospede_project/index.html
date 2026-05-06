@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ÔSPEDE — Hotéis São Paulo</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- DateRangePicker -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
+
+  <style>
+    /* ═══════════════════════════════════════════
+       CUSTOM FONTS (ZonaPro from hotel_hero)
+    ═══════════════════════════════════════════ */
+    @font-face {
+      font-family: "Zona Pro Bold";
+      font-weight: bold;
+      src: url("static/fonts/ZonaPro-Bold.woff2") format("woff2"),
+           url("static/fonts/ZonaPro-Bold.woff")  format("woff");
+    }
+    @font-face {
+      font-family: "Zona Pro Light";
+      font-weight: 300;
+      src: url("static/fonts/ZonaPro-ExtraLight.woff2") format("woff2"),
+           url("static/fonts/ZonaPro-ExtraLight.woff")  format("woff");
+    }
+
+    /* ═══════════════════════════════════════════
+       TOKENS
+    ═══════════════════════════════════════════ */
+    :root {
+      --black:        #0b0b0b;
+      --white:        #ffffff;
+      --off:          #f6f5f2;
+      --gold:         #c9a84c;
+      --gold-dark:    #9a7630;
+      --gold-light:   #f5ecd6;
+      --gray-100:     #eeece8;
+      --gray-300:     #d5d2cb;
+      --gray-500:     #908c84;
+      --gray-700:     #48453e;
+      --border:       #ddd9d1;
+      --shadow:       0 4px 24px rgba(0,0,0,.10);
+      --shadow-lg:    0 16px 60px rgba(0,0,0,.20);
+      --font-hero:    "Cormorant Garamond", "Zona Pro Light", serif;
+      --font-hero-b:  "Zona Pro Bold", "Cormorant Garamond", serif;
+      --font-body:    "DM Sans", sans-serif;
+      --nav-h:        96px;
+      --r:            8px;
+      --r-lg:         14px;
+    }
+
+    /* ═══════════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════════ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; font-size:15px; }
+    body { font-family:var(--font-body); background:var(--off); color:var(--black); line-height:1.6; overflow-x:hidden; }
+    a { text-decoration:none; cursor:pointer; }
+    ul { list-style:none; }
+    img { display:block; }
+    button { font-family:var(--font-body); cursor:pointer; }
+
+    /* ═══════════════════════════════════════════
+       NAVBAR  (espelhado em hotel_hero — dark, fixed)
+    ═══════════════════════════════════════════ */
+    #navbar {
+      position: fixed; top:0; left:0; right:0; z-index:9999;
+      height: var(--nav-h);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 56px;
+      transition: background .4s, box-shadow .4s;
+    }
+    #navbar.scrolled {
+      background: rgba(11,11,11,.96);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 24px rgba(0,0,0,.4);
+    }
+    #navbar.light {
+      background: rgba(255,255,255,.97);
+      box-shadow: var(--shadow);
+    }
+    #navbar.light .nav-link { color: var(--gray-700); }
+    #navbar.light .nav-link:hover { color: var(--black); }
+    #navbar.light #brand { color: var(--black); }
+    #navbar.light #brand span { color: var(--gold); }
+
+    #brand {
+      font-family: var(--font-hero-b);
+      font-size: 1.75rem;
+      letter-spacing: .12em;
+      color: var(--white);
+      text-transform: uppercase;
+    }
+    #brand span { color: var(--gold); }
+
+    .nav-links { display:flex; align-items:center; gap:2.25rem; }
+    .nav-link {
+      font-size: .78rem; font-weight:500; letter-spacing:.08em;
+      text-transform: uppercase; color: var(--gray-300);
+      transition: color .2s; position:relative;
+    }
+    .nav-link::after {
+      content:''; position:absolute; bottom:-4px; left:0;
+      width:0; height:2px; background:var(--gold);
+      transition:width .3s ease;
+    }
+    .nav-link:hover::after { width:100%; }
+    .nav-link:hover { color:var(--white); }
+
+    .nav-cta {
+      background: var(--gold); color: var(--black);
+      border:none; padding:.5rem 1.4rem; border-radius:var(--r);
+      font-size:.78rem; font-weight:700; letter-spacing:.06em;
+      text-transform:uppercase;
+      transition: background .2s;
+    }
+    .nav-cta:hover { background: var(--gold-dark); color:var(--white); }
+    #navUser { display:flex; align-items:center; gap:.5rem; color:var(--white); font-size:.82rem; font-weight:500; }
+    #navUserDot { width:7px; height:7px; background:var(--gold); border-radius:50%; }
+    #navRight { display:flex; align-items:center; gap:1rem; }
+
+    /* HAMBURGER */
+    .ham { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:8px; }
+    .ham span { display:block; width:24px; height:2px; background:var(--white); border-radius:2px; transition:all .3s; }
+    .ham.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+    .ham.open span:nth-child(2) { opacity:0; }
+    .ham.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+    /* ═══════════════════════════════════════════
+       HERO SLIDER  (inspirado fielmente no hotel_hero)
+    ═══════════════════════════════════════════ */
+    #hero {
+      position: relative;
+      height: 100vh; min-height: 640px;
+      overflow: hidden;
+    }
+
+    /* Slides */
+    .slide {
+      position: absolute; inset: 0;
+      opacity: 0; transition: opacity .9s ease;
+    }
+    .slide.active { opacity: 1; z-index:1; }
+
+    .slide-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+    }
+    .slide-bg::after {
+      content:''; position:absolute; inset:0;
+      background: linear-gradient(
+        to right,
+        rgba(0,0,0,.72) 0%,
+        rgba(0,0,0,.42) 55%,
+        rgba(0,0,0,.15) 100%
+      );
+    }
+
+    /* Breadcrumb lateral */
+    .slide-crumb {
+      position: absolute; right:-28px; top:42%;
+      transform: rotate(90deg);
+      transform-origin: center center;
+      font-family: var(--font-body); font-size:.72rem;
+      letter-spacing:.12em; text-transform:uppercase;
+      color: rgba(255,255,255,.55);
+      white-space: nowrap; z-index:2;
+    }
+    .slide-crumb a { color: inherit; }
+    .slide-crumb a:hover { color: var(--gold); }
+
+    /* Hero Content */
+    #heroContent {
+      position: absolute; bottom:210px; left:80px;
+      z-index: 5; max-width:380px;
+    }
+    .hero-label {
+      font-size:.7rem; letter-spacing:.18em; text-transform:uppercase;
+      color: var(--gold); font-weight:600; margin-bottom:1.2rem;
+    }
+    #heroTitle {
+      font-family: var(--font-hero);
+      font-size: clamp(2.4rem, 3.8vw, 3.6rem);
+      line-height: 1.12; color: var(--white);
+      font-weight: 300;
+      margin-bottom: 2rem;
+    }
+    #heroTitle strong { font-family: var(--font-hero-b); color: var(--gold); }
+
+    /* Hotel selector tabs */
+    .hotel-tabs { display:flex; flex-direction:column; gap:10px; margin-bottom:1.75rem; }
+    .hotel-tab {
+      font-family: var(--font-body); font-size:.78rem;
+      font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+      color: rgba(255,255,255,.45); cursor:pointer;
+      padding:.4rem 0; border-bottom:2px solid rgba(255,255,255,.12);
+      transition: color .2s, border-color .2s;
+      background: none; border-left:none; border-right:none; border-top:none;
+      text-align:left;
+    }
+    .hotel-tab.active,
+    .hotel-tab:hover { color: var(--white); border-bottom-color: var(--gold); }
+    .hotel-tab.active { color: var(--gold); }
+
+    /* Booking bar — at bottom of hero, like hotel_hero's sl-calendar */
+    #bookingBar {
+      position: absolute; bottom:0; left:0; right:0; z-index:6;
+      background: rgba(11,11,11,.88);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(255,255,255,.08);
+    }
+    #bookingBarInner {
+      max-width: 1400px; margin: 0 auto;
+      display: flex; align-items: stretch;
+      padding: 0;
+    }
+    .bb-field {
+      flex:1; padding:1.1rem 1.6rem;
+      border-right: 1px solid rgba(255,255,255,.1);
+      cursor:pointer; transition: background .2s;
+    }
+    .bb-field:hover { background: rgba(255,255,255,.05); }
+    .bb-label {
+      font-size:.65rem; letter-spacing:.12em; text-transform:uppercase;
+      color: var(--gold); font-weight:600; display:block; margin-bottom:.3rem;
+    }
+    .bb-val {
+      font-family: var(--font-body); font-size:.92rem; font-weight:500;
+      color: var(--white);
+    }
+    .bb-val input, .bb-val select {
+      background:none; border:none; outline:none;
+      color:var(--white); font-family:var(--font-body);
+      font-size:.92rem; font-weight:500; width:100%;
+      cursor:pointer;
+    }
+    .bb-val select option { background: var(--black); }
+    #bbSearchBtn {
+      background: var(--gold); color: var(--black);
+      border:none; padding:0 2.4rem;
+      font-size:.8rem; font-weight:700; letter-spacing:.08em;
+      text-transform:uppercase;
+      transition: background .2s;
+    }
+    #bbSearchBtn:hover { background: var(--gold-dark); color:var(--white); }
+
+    /* Slider bottom bar (like hotel_hero's #sl-bottom) */
+    #slBottom {
+      position: absolute; bottom: 72px; right:80px;
+      z-index:5; display:flex; align-items:center; gap:2rem;
+    }
+    #slNumbers {
+      font-family: var(--font-hero-b); font-size:1.6rem;
+      color:var(--white); letter-spacing:.08em;
+    }
+    #slNumbers .small { font-family:var(--font-hero); font-size:1rem; opacity:.5; }
+    .sl-arrows { display:flex; gap:.75rem; }
+    .sl-arrow {
+      width:42px; height:42px;
+      border:1px solid rgba(255,255,255,.3); border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      color:var(--white); font-size:.85rem; cursor:pointer;
+      transition:background .2s, border-color .2s;
+    }
+    .sl-arrow:hover { background:var(--gold); border-color:var(--gold); color:var(--black); }
+
+    /* Big decorative number (like hotel_hero) */
+    #heroCount {
+      position:absolute; bottom:72px; left:80px; z-index:5;
+      display:flex; align-items:flex-end; gap:1rem;
+    }
+    .count-num {
+      font-family: var(--font-hero-b);
+      font-size: 7rem; line-height:1;
+      color: rgba(255,255,255,.08);
+      user-select:none;
+    }
+    .count-label {
+      font-family: var(--font-hero-b); font-size:.7rem;
+      letter-spacing:.18em; text-transform:uppercase;
+      color: rgba(255,255,255,.45); padding-bottom:.9rem;
+    }
+
+    /* ═══════════════════════════════════════════
+       HOTEL LISTING
+    ═══════════════════════════════════════════ */
+    #listingSection {
+      max-width:1400px; margin:0 auto;
+      padding: 3.5rem 2rem;
+      display: flex; gap:2.5rem;
+    }
+
+    /* Sidebar */
+    #sidebar { width:280px; flex-shrink:0; }
+    .sb-card {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--r-lg); padding:1.5rem;
+      margin-bottom:1.25rem;
+    }
+    .sb-title {
+      font-size:.65rem; font-weight:700; letter-spacing:.12em;
+      text-transform:uppercase; color:var(--gray-500); margin-bottom:1.1rem;
+    }
+    .sb-promo {
+      background: linear-gradient(140deg, var(--black), #2d2520);
+      border:none;
+    }
+    .sb-promo h4 {
+      font-family:var(--font-hero); font-size:1.2rem;
+      font-weight:400; font-style:italic; color:var(--white);
+      margin-bottom:.4rem;
+    }
+    .sb-promo p { font-size:.8rem; color:var(--gray-300); line-height:1.5; margin-bottom:1rem; }
+    .sb-promo-btn {
+      width:100%; background:var(--gold); color:var(--black);
+      border:none; padding:.6rem; border-radius:var(--r);
+      font-size:.78rem; font-weight:700; letter-spacing:.06em;
+      text-transform:uppercase; transition:background .2s;
+    }
+    .sb-promo-btn:hover { background:var(--gold-dark); color:var(--white); }
+
+    .filter-group { margin-bottom:1rem; }
+    .filter-lbl { font-size:.8rem; font-weight:500; color:var(--gray-700); display:block; margin-bottom:.5rem; }
+    .filter-range { width:100%; accent-color:var(--gold); }
+    .range-row { display:flex; justify-content:space-between; font-size:.74rem; color:var(--gray-500); margin-top:.25rem; }
+    .filter-checks { display:flex; flex-direction:column; gap:.5rem; }
+    .filter-check { display:flex; align-items:center; gap:.55rem; font-size:.84rem; color:var(--gray-700); cursor:pointer; }
+    .filter-check input { accent-color:var(--gold); width:14px; height:14px; }
+
+    .nb-item {
+      display:flex; align-items:center; gap:.85rem;
+      padding:.65rem 0; border-bottom:1px solid var(--border);
+      cursor:pointer; transition:opacity .15s;
+    }
+    .nb-item:last-child { border-bottom:none; }
+    .nb-item:hover { opacity:.72; }
+    .nb-ico {
+      width:36px; height:36px; border-radius:var(--r);
+      background:var(--gold-light); display:flex;
+      align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+    }
+    .nb-ico.dark { background:var(--gray-100); }
+    .nb-txt strong { font-size:.84rem; font-weight:600; display:block; }
+    .nb-txt span { font-size:.74rem; color:var(--gray-500); }
+    .nb-arr { font-size:.74rem; color:var(--gray-500); margin-left:auto; }
+
+    /* Hotel Cards */
+    #hotelsMain { flex:1; min-width:0; }
+    .hotels-head {
+      display:flex; align-items:center;
+      justify-content:space-between; margin-bottom:1.5rem;
+    }
+    .hotels-head h2 {
+      font-family:var(--font-hero); font-size:1.8rem; font-weight:400;
+    }
+    .hotels-head h2 em { font-style:italic; color:var(--gold); }
+    #hotelsCount { font-size:.8rem; color:var(--gray-500); margin-top:.15rem; }
+    #sortSelect {
+      border:1px solid var(--border); border-radius:var(--r);
+      padding:.45rem .9rem; font-family:var(--font-body); font-size:.82rem;
+      background:var(--white); color:var(--black); outline:none; cursor:pointer;
+    }
+
+    /* Card */
+    .hotel-card {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--r-lg); overflow:hidden;
+      display:flex; margin-bottom:1.4rem;
+      transition:box-shadow .25s, transform .2s;
+      cursor:pointer;
+    }
+    .hotel-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-3px); }
+
+    .card-img {
+      width:240px; flex-shrink:0; position:relative; overflow:hidden;
+    }
+    .card-img img {
+      width:100%; height:100%; min-height:210px;
+      object-fit:cover; object-position:center;
+      transition:transform .5s ease;
+    }
+    .hotel-card:hover .card-img img { transform:scale(1.05); }
+    .card-badge {
+      position:absolute; top:.7rem; left:.7rem;
+      background:var(--gold); color:var(--black);
+      font-size:.65rem; font-weight:700; letter-spacing:.07em;
+      padding:.25rem .65rem; border-radius:20px;
+      text-transform:uppercase;
+    }
+
+    .card-body {
+      padding:1.4rem 1.75rem; flex:1;
+      display:flex; flex-direction:column; justify-content:space-between;
+    }
+    .card-name {
+      font-family:var(--font-hero); font-size:1.3rem; font-weight:600;
+      margin-bottom:.15rem;
+    }
+    .card-loc { font-size:.78rem; color:var(--gray-500); margin-bottom:.5rem; }
+    .card-stars { display:flex; gap:2px; margin-bottom:.75rem; }
+    .star { color:var(--gold); font-size:13px; }
+    .star.empty { color:var(--gray-300); }
+    .card-desc {
+      font-size:.85rem; color:var(--gray-700); line-height:1.65;
+      margin-bottom:.9rem; flex:1;
+    }
+    .card-tags { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1rem; }
+    .card-tag {
+      font-size:.68rem; font-weight:600; letter-spacing:.04em;
+      padding:.22rem .65rem; border-radius:20px;
+      border:1px solid var(--border); color:var(--gray-700);
+      background:var(--off);
+    }
+    .card-footer {
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .card-price .from { font-size:.74rem; color:var(--gray-500); }
+    .card-price .amount {
+      font-family:var(--font-hero); font-size:1.55rem; font-weight:600;
+    }
+    .card-price .period { font-size:.74rem; color:var(--gray-500); }
+    .card-btn {
+      background:var(--black); color:var(--white);
+      border:none; padding:.6rem 1.4rem; border-radius:var(--r);
+      font-size:.8rem; font-weight:600; letter-spacing:.04em;
+      transition:background .2s;
+    }
+    .card-btn:hover { background:var(--gold); color:var(--black); }
+
+    /* ═══════════════════════════════════════════
+       MODAIS
+    ═══════════════════════════════════════════ */
+    .overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.65); z-index:10000;
+      overflow-y:auto; padding:2rem 1rem;
+    }
+    .overlay.open { display:flex; align-items:flex-start; justify-content:center; }
+    .modal {
+      background:var(--white); border-radius:var(--r-lg);
+      width:100%; max-width:500px;
+      box-shadow:0 32px 100px rgba(0,0,0,.35);
+      animation:slideUp .3s ease; overflow:hidden;
+    }
+    @keyframes slideUp {
+      from { transform:translateY(28px); opacity:0; }
+      to   { transform:translateY(0);    opacity:1; }
+    }
+
+    .modal-head {
+      background:var(--black); padding:1.5rem 1.75rem;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .modal-head h2 {
+      font-family:var(--font-hero); font-size:1.25rem;
+      font-weight:400; color:var(--white);
+    }
+    .modal-head .brand-sm { color:var(--gold); font-size:.75rem; letter-spacing:.1em; font-weight:700; }
+    .modal-x {
+      background:none; border:none; color:var(--gray-500);
+      font-size:1.2rem; padding:.2rem; transition:color .2s;
+    }
+    .modal-x:hover { color:var(--white); }
+
+    .modal-body { padding:1.75rem; }
+    .modal-foot { padding:1rem 1.75rem 1.5rem; border-top:1px solid var(--border); }
+
+    .form-row { margin-bottom:1.2rem; }
+    .form-row label {
+      display:block; font-size:.72rem; font-weight:700;
+      letter-spacing:.08em; text-transform:uppercase;
+      color:var(--gray-700); margin-bottom:.45rem;
+    }
+    .form-row input, .form-row select {
+      width:100%; border:1px solid var(--border); border-radius:var(--r);
+      padding:.7rem .95rem; font-family:var(--font-body); font-size:.9rem;
+      color:var(--black); background:var(--white); outline:none;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .form-row input:focus, .form-row select:focus {
+      border-color:var(--gold);
+      box-shadow:0 0 0 3px rgba(201,168,76,.14);
+    }
+    .form-row input.err { border-color:#e24b4a; }
+    .form-err { font-size:.76rem; color:#e24b4a; margin-top:.3rem; display:none; }
+    .form-err.show { display:block; }
+    .form-2col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-hint { font-size:.75rem; color:var(--gray-500); margin-top:.3rem; }
+
+    .modal-btn {
+      width:100%; background:var(--gold); color:var(--black);
+      border:none; padding:.85rem; border-radius:var(--r);
+      font-size:.9rem; font-weight:700; letter-spacing:.04em;
+      transition:background .2s;
+    }
+    .modal-btn:hover { background:var(--gold-dark); color:var(--white); }
+    .modal-btn-ghost {
+      width:100%; background:none; color:var(--black);
+      border:1px solid var(--border); padding:.85rem; border-radius:var(--r);
+      font-size:.9rem; font-weight:600; letter-spacing:.04em;
+      margin-top:.6rem; transition:background .2s, border-color .2s;
+    }
+    .modal-btn-ghost:hover { background:var(--black); color:var(--white); border-color:var(--black); }
+
+    .modal-switch { text-align:center; font-size:.83rem; color:var(--gray-500); margin-top:1rem; }
+    .modal-switch a { color:var(--gold); font-weight:500; }
+    .modal-switch a:hover { text-decoration:underline; }
+
+    /* Notice box */
+    .notice {
+      background:var(--off); border:1px solid var(--border);
+      border-left:3px solid var(--gold); border-radius:0 var(--r) var(--r) 0;
+      padding:.7rem 1rem; font-size:.8rem; color:var(--gray-700); margin-bottom:1rem;
+    }
+
+    /* Password toggle */
+    .pw-wrap { position:relative; }
+    .pw-wrap input { padding-right:2.5rem; }
+    .pw-eye {
+      position:absolute; right:.75rem; top:50%; transform:translateY(-50%);
+      background:none; border:none; color:var(--gray-500); font-size:.85rem;
+    }
+
+    /* Strength bar */
+    .str-bar { height:3px; border-radius:2px; background:var(--border); overflow:hidden; margin-top:.4rem; }
+    .str-fill { height:100%; border-radius:2px; width:0%; transition:width .3s, background .3s; }
+
+    /* Reservation steps */
+    .steps-bar { display:flex; gap:.4rem; margin-bottom:1.6rem; }
+    .step-dot {
+      flex:1; height:3px; border-radius:2px; background:var(--border);
+      transition:background .3s;
+    }
+    .step-dot.active { background:var(--gold); }
+    .step-dot.done   { background:var(--black); }
+
+    .room-grid { display:grid; grid-template-columns:1fr 1fr; gap:.85rem; }
+    .room-card {
+      border:2px solid var(--border); border-radius:var(--r);
+      padding:.9rem; cursor:pointer; position:relative;
+      transition:border-color .2s, background .2s;
+    }
+    .room-card.selected { border-color:var(--gold); background:var(--gold-light); }
+    .room-card h5 { font-size:.88rem; font-weight:700; margin-bottom:.2rem; }
+    .room-card p  { font-size:.76rem; color:var(--gray-700); line-height:1.45; margin-bottom:.45rem; }
+    .room-price   { font-size:.95rem; font-weight:700; color:var(--gold); }
+    .room-check {
+      position:absolute; top:.6rem; right:.6rem;
+      width:18px; height:18px; border-radius:50%;
+      background:var(--gold); display:none;
+      align-items:center; justify-content:center;
+      color:var(--black); font-size:10px;
+    }
+    .room-card.selected .room-check { display:flex; }
+
+    .pay-grid { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; }
+    .pay-opt {
+      border:2px solid var(--border); border-radius:var(--r);
+      padding:.85rem; cursor:pointer;
+      display:flex; align-items:center; gap:.6rem;
+      transition:border-color .2s, background .2s;
+    }
+    .pay-opt.selected { border-color:var(--gold); background:var(--gold-light); }
+    .pay-opt .pi { font-size:1.1rem; }
+    .pay-opt span { font-size:.85rem; font-weight:600; }
+
+    .summary-box {
+      background:var(--off); border-radius:var(--r);
+      padding:1.1rem; margin-bottom:1rem;
+    }
+    .sum-hotel {
+      font-family:var(--font-hero); font-size:1.05rem; font-weight:600;
+      margin-bottom:.8rem;
+    }
+    .sum-row { display:flex; justify-content:space-between; font-size:.85rem; padding:.18rem 0; }
+    .sum-row.total {
+      font-weight:700; font-size:1rem;
+      padding-top:.6rem; border-top:1px solid var(--border); margin-top:.4rem;
+    }
+
+    /* Success */
+    .success-wrap { text-align:center; padding:1rem 0; }
+    .success-ico {
+      width:64px; height:64px; background:var(--gold-light);
+      border-radius:50%; display:flex; align-items:center;
+      justify-content:center; font-size:1.6rem; margin:0 auto 1.2rem;
+    }
+    .success-wrap h3 {
+      font-family:var(--font-hero); font-size:1.35rem; margin-bottom:.5rem;
+    }
+    .success-wrap p { font-size:.875rem; color:var(--gray-700); line-height:1.6; }
+    .res-code {
+      background:var(--off); border:1px solid var(--border); border-radius:var(--r);
+      padding:.75rem 1.25rem; font-family:monospace; font-size:1.05rem;
+      font-weight:700; letter-spacing:.2em; margin:1rem 0; color:var(--gold);
+    }
+
+    /* ═══════════════════════════════════════════
+       CONFIRMATION PAGE
+    ═══════════════════════════════════════════ */
+    #confirmPage { padding-top:var(--nav-h); display:none; }
+    .conf-wrap { max-width:660px; margin:0 auto; padding:3rem 2rem; }
+    .conf-hdr { text-align:center; margin-bottom:2.5rem; }
+    .conf-icon {
+      width:72px; height:72px; background:var(--gold);
+      border-radius:50%; display:flex; align-items:center;
+      justify-content:center; font-size:1.8rem; margin:0 auto 1rem; color:var(--black);
+    }
+    .conf-hdr h1 { font-family:var(--font-hero); font-size:2rem; font-weight:400; }
+    .conf-hdr p { color:var(--gray-700); margin-top:.4rem; }
+    .conf-card {
+      background:var(--white); border:1px solid var(--border);
+      border-radius:var(--r-lg); overflow:hidden; margin-bottom:1.4rem;
+    }
+    .conf-card-head {
+      background:var(--black); padding:1.1rem 1.4rem;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .conf-card-head h3 { font-family:var(--font-hero); color:var(--white); font-size:1.05rem; font-weight:400; }
+    .conf-card-head .code { font-family:monospace; color:var(--gold); font-size:.9rem; letter-spacing:.12em; font-weight:700; }
+    .conf-card-body { padding:1.25rem 1.4rem; }
+    .conf-row { display:flex; justify-content:space-between; padding:.45rem 0; border-bottom:1px solid var(--border); }
+    .conf-row:last-child { border-bottom:none; }
+    .conf-row .k { font-size:.8rem; color:var(--gray-500); font-weight:500; }
+    .conf-row .v { font-size:.88rem; font-weight:600; }
+    .conf-total { display:flex; justify-content:space-between; align-items:center; padding:.75rem 0; }
+    .conf-total .k { font-size:.9rem; font-weight:700; }
+    .conf-total .v { font-family:var(--font-hero); font-size:1.35rem; font-weight:600; color:var(--gold); }
+
+    /* ═══════════════════════════════════════════
+       HOME PAGE WRAPPER
+    ═══════════════════════════════════════════ */
+    #homePage { display:block; }
+    .page { display:none; }
+    .page.active { display:block; }
+
+    /* ═══════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════ */
+    footer {
+      background:var(--black); color:var(--gray-300);
+      padding:3rem 4rem 2rem;
+      font-size:.82rem;
+    }
+    .footer-top {
+      display:flex; gap:4rem; justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,.08); padding-bottom:2rem; margin-bottom:2rem;
+    }
+    .footer-brand {
+      font-family:var(--font-hero-b); font-size:1.5rem;
+      letter-spacing:.12em; color:var(--white); margin-bottom:.5rem;
+    }
+    .footer-brand span { color:var(--gold); }
+    .footer-tagline { font-size:.8rem; color:var(--gray-500); }
+    .footer-col h5 {
+      font-size:.68rem; font-weight:700; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--gold); margin-bottom:1rem;
+    }
+    .footer-col ul { display:flex; flex-direction:column; gap:.5rem; }
+    .footer-col ul li { color:var(--gray-500); cursor:pointer; transition:color .2s; }
+    .footer-col ul li:hover { color:var(--white); }
+    .footer-bottom { display:flex; justify-content:space-between; align-items:center; }
+    .footer-copy { font-size:.74rem; color:var(--gray-700); }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width:1100px) {
+      #listingSection { flex-direction:column; }
+      #sidebar { width:100%; }
+    }
+    @media (max-width:760px) {
+      #navbar { padding:0 24px; }
+      .nav-links { display:none; }
+      .ham { display:flex; }
+      #heroContent { left:24px; bottom:220px; }
+      #heroCount, #slBottom { display:none; }
+      #bookingBarInner { flex-direction:column; }
+      .bb-field { border-right:none; border-bottom:1px solid rgba(255,255,255,.1); }
+      #bbSearchBtn { padding:1rem; }
+      .room-grid, .pay-grid { grid-template-columns:1fr; }
+      .form-2col { grid-template-columns:1fr; }
+      .card-img { width:140px; }
+      footer { padding:2rem 1.5rem; }
+      .footer-top { flex-direction:column; gap:2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════ NAVBAR ═══════════ -->
+<nav id="navbar">
+  <div id="brand" onclick="showPage('home')">Ô<span>SPEDE</span></div>
+
+  <div class="nav-links">
+    <a class="nav-link" onclick="scrollToListing()">Hotéis</a>
+    <a class="nav-link">Experiências</a>
+    <a class="nav-link">Ofertas</a>
+    <a class="nav-link">Suporte</a>
+  </div>
+
+  <div id="navRight">
+    <button class="nav-cta" onclick="openModal('loginModal')">Entrar</button>
+  </div>
+
+  <div class="ham" id="hamBtn" onclick="toggleMobileMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+
+<!-- ═══════════ HOME PAGE ═══════════ -->
+<div class="page active" id="homePage">
+
+  <!-- ── HERO SLIDER ── -->
+  <section id="hero">
+
+    <!-- Slides (preenchidos via JS) -->
+    <div id="slides"></div>
+
+    <!-- Hero Content -->
+    <div id="heroContent">
+      <p class="hero-label">São Paulo · Hotéis Selecionados</p>
+      <h1 id="heroTitle">
+        A melhor estadia<br>começa com uma<br><strong>boa escolha</strong>
+      </h1>
+      <div class="hotel-tabs" id="hotelTabs"></div>
+    </div>
+
+    <!-- Decorative count -->
+    <div id="heroCount">
+      <div class="count-num">8</div>
+      <div class="count-label">Hotéis para<br>explorar SP</div>
+    </div>
+
+    <!-- Arrows + counter -->
+    <div id="slBottom">
+      <div class="sl-arrows">
+        <div class="sl-arrow" id="slPrev"><i class="fa fa-arrow-left"></i></div>
+        <div class="sl-arrow" id="slNext"><i class="fa fa-arrow-right"></i></div>
+      </div>
+      <div id="slNumbers">
+        <span id="slCur">01</span><span class="small"> / 08</span>
+      </div>
+    </div>
+
+    <!-- Booking bar -->
+    <div id="bookingBar">
+      <div id="bookingBarInner">
+        <div class="bb-field">
+          <span class="bb-label">Destino</span>
+          <div class="bb-val"><input type="text" id="bbDest" placeholder="São Paulo, SP" value="São Paulo, SP"></div>
+        </div>
+        <div class="bb-field">
+          <span class="bb-label">Check-in &amp; Check-out</span>
+          <div class="bb-val"><input type="text" id="bbDates" readonly placeholder="Selecione as datas"></div>
+        </div>
+        <div class="bb-field">
+          <span class="bb-label">Hóspedes</span>
+          <div class="bb-val">
+            <select id="bbGuests">
+              <option>1 hóspede</option>
+              <option selected>2 hóspedes</option>
+              <option>3 hóspedes</option>
+              <option>4+ hóspedes</option>
+            </select>
+          </div>
+        </div>
+        <button id="bbSearchBtn" onclick="doSearch()">
+          <i class="fa fa-search"></i>&nbsp; Buscar
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ── LISTING ── -->
+  <section id="listingSection">
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+
+      <!-- Promo -->
+      <div class="sb-card sb-promo">
+        <h4>Membros ganham mais</h4>
+        <p>Cadastre-se e economize até 20% em todas as reservas. Acesso a ofertas exclusivas.</p>
+        <button class="sb-promo-btn" onclick="openModal('registerModal')">Criar conta grátis</button>
+      </div>
+
+      <!-- Filtros -->
+      <div class="sb-card">
+        <div class="sb-title">Filtrar por</div>
+        <div class="filter-group">
+          <span class="filter-lbl">Preço por noite</span>
+          <input type="range" class="filter-range" min="371" max="749" value="749"
+                 id="priceSlider" oninput="updatePrice(this.value)">
+          <div class="range-row"><span>R$ 371</span><span id="priceVal">R$ 749</span></div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-lbl">Categoria</span>
+          <div class="filter-checks">
+            <label class="filter-check"><input type="checkbox" checked> 5 estrelas</label>
+            <label class="filter-check"><input type="checkbox" checked> 4 estrelas</label>
+            <label class="filter-check"><input type="checkbox"> Boutique</label>
+            <label class="filter-check"><input type="checkbox"> Business</label>
+          </div>
+        </div>
+        <div class="filter-group">
+          <span class="filter-lbl">Comodidades</span>
+          <div class="filter-checks">
+            <label class="filter-check"><input type="checkbox" checked> Wi-Fi grátis</label>
+            <label class="filter-check"><input type="checkbox"> Spa</label>
+            <label class="filter-check"><input type="checkbox"> Piscina</label>
+            <label class="filter-check"><input type="checkbox"> Café incluso</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regiões -->
+      <div class="sb-card">
+        <div class="sb-title">Regiões populares</div>
+        <div class="nb-item"><div class="nb-ico">🌆</div><div class="nb-txt"><strong>Jardins</strong><span>23 hotéis</span></div><span class="nb-arr">›</span></div>
+        <div class="nb-item"><div class="nb-ico dark">🏢</div><div class="nb-txt"><strong>Paulista</strong><span>18 hotéis</span></div><span class="nb-arr">›</span></div>
+        <div class="nb-item"><div class="nb-ico">🎭</div><div class="nb-txt"><strong>Pinheiros</strong><span>14 hotéis</span></div><span class="nb-arr">›</span></div>
+        <div class="nb-item"><div class="nb-ico dark">🌿</div><div class="nb-txt"><strong>Ibirapuera</strong><span>9 hotéis</span></div><span class="nb-arr">›</span></div>
+        <div class="nb-item"><div class="nb-ico">✈️</div><div class="nb-txt"><strong>Guarulhos</strong><span>6 hotéis</span></div><span class="nb-arr">›</span></div>
+      </div>
+
+      <!-- Atendimento -->
+      <div class="sb-card" style="font-size:.82rem; color:var(--gray-700);">
+        <div class="sb-title">Atendimento</div>
+        <p style="margin-bottom:.5rem">📞 0800 555 9988</p>
+        <p style="margin-bottom:.5rem">💬 Chat online 24h</p>
+        <p>✉️ contato@ospede.com.br</p>
+      </div>
+    </aside>
+
+    <!-- Hotel List -->
+    <main id="hotelsMain">
+      <div class="hotels-head">
+        <div>
+          <h2>Hotéis em <em>São Paulo</em></h2>
+          <div id="hotelsCount">carregando…</div>
+        </div>
+        <select id="sortSelect" onchange="sortHotels(this.value)">
+          <option value="popular">Mais populares</option>
+          <option value="price_asc">Menor preço</option>
+          <option value="price_desc">Maior preço</option>
+          <option value="stars">Melhor avaliação</option>
+        </select>
+      </div>
+      <div id="hotelsList"></div>
+    </main>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">Ô<span>SPEDE</span></div>
+        <p class="footer-tagline">Sua estadia em São Paulo, bem escolhida.</p>
+      </div>
+      <div class="footer-col"><h5>Hotéis</h5><ul><li>Jardins</li><li>Paulista</li><li>Pinheiros</li><li>Ibirapuera</li></ul></div>
+      <div class="footer-col"><h5>Empresa</h5><ul><li>Sobre nós</li><li>Parcerias</li><li>Imprensa</li><li>Carreiras</li></ul></div>
+      <div class="footer-col"><h5>Suporte</h5><ul><li>Central de ajuda</li><li>Política de cancelamento</li><li>Termos de uso</li><li>Privacidade</li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 ÔSPEDE. Todos os direitos reservados.</span>
+      <span class="footer-copy">Feito com ♥ em São Paulo</span>
+    </div>
+  </footer>
+</div><!-- /homePage -->
+
+
+<!-- ═══════════ CONFIRMATION PAGE ═══════════ -->
+<div id="confirmPage">
+  <div class="conf-wrap">
+    <div class="conf-hdr">
+      <div class="conf-icon">✓</div>
+      <h1>Reserva confirmada!</h1>
+      <p>Seu voucher foi enviado para o e-mail cadastrado.</p>
+    </div>
+    <div class="conf-card">
+      <div class="conf-card-head">
+        <h3 id="confName">—</h3>
+        <span class="code" id="confCode">—</span>
+      </div>
+      <div class="conf-card-body">
+        <div class="conf-row"><span class="k">Tipo de quarto</span><span class="v" id="confRoom">—</span></div>
+        <div class="conf-row"><span class="k">Hóspedes</span><span class="v" id="confGuests">—</span></div>
+        <div class="conf-row"><span class="k">Período</span><span class="v" id="confPeriod">—</span></div>
+        <div class="conf-row"><span class="k">Noites</span><span class="v" id="confNights">—</span></div>
+        <div class="conf-row"><span class="k">Pagamento</span><span class="v" id="confPay">—</span></div>
+        <div class="conf-total"><span class="k">Total</span><span class="v" id="confTotal">—</span></div>
+      </div>
+    </div>
+    <button class="modal-btn-ghost" onclick="showPage('home')">← Voltar para hotéis</button>
+  </div>
+</div>
+
+
+<!-- ═══════════ MODAL: LOGIN ═══════════ -->
+<div class="overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Entrar na sua conta</h2>
+      <span class="brand-sm">ÔSPEDE</span>
+      <button class="modal-x" onclick="closeModal('loginModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="notice">Faça login para acessar suas reservas e ofertas exclusivas de membros.</div>
+      <div class="form-row">
+        <label>E-mail</label>
+        <input type="email" id="loginEmail" placeholder="seu@email.com">
+      </div>
+      <div class="form-row">
+        <label>Senha</label>
+        <div class="pw-wrap">
+          <input type="password" id="loginPass" placeholder="••••••••">
+          <button class="pw-eye" onclick="togglePw('loginPass',this)">👁</button>
+        </div>
+      </div>
+      <p style="text-align:right;font-size:.78rem;margin-top:-.4rem">
+        <a style="color:var(--gold);cursor:pointer">Esqueci minha senha</a>
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn" onclick="doLogin()">Entrar</button>
+      <p class="modal-switch">Não tem conta?
+        <a onclick="switchModal('loginModal','registerModal')">Criar conta grátis</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ MODAL: CADASTRO ═══════════ -->
+<div class="overlay" id="registerModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Criar conta</h2>
+      <span class="brand-sm">ÔSPEDE</span>
+      <button class="modal-x" onclick="closeModal('registerModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <label>Nome completo</label>
+        <input type="text" id="regName" placeholder="Seu nome completo">
+      </div>
+      <div class="form-row">
+        <label>E-mail</label>
+        <input type="email" id="regEmail" placeholder="seu@email.com">
+        <div class="form-err" id="regEmailErr">E-mail inválido.</div>
+      </div>
+      <div class="form-row">
+        <label>CPF</label>
+        <input type="text" id="regCpf" placeholder="000.000.000-00" maxlength="14" oninput="maskCpf(this)">
+        <div class="form-err" id="regCpfErr">CPF inválido.</div>
+      </div>
+      <div class="form-row">
+        <label>Senha</label>
+        <div class="pw-wrap">
+          <input type="password" id="regPass" placeholder="Mínimo 8 caracteres" oninput="checkStr(this.value)">
+          <button class="pw-eye" onclick="togglePw('regPass',this)">👁</button>
+        </div>
+        <div class="str-bar"><div class="str-fill" id="strFill"></div></div>
+        <div class="form-hint" id="strLabel">Digite uma senha</div>
+      </div>
+      <div class="form-row">
+        <label>Confirmar senha</label>
+        <div class="pw-wrap">
+          <input type="password" id="regPassConf" placeholder="Repita a senha">
+          <button class="pw-eye" onclick="togglePw('regPassConf',this)">👁</button>
+        </div>
+        <div class="form-err" id="regPassErr">As senhas não coincidem.</div>
+      </div>
+      <p style="font-size:.75rem;color:var(--gray-500);line-height:1.5">
+        Ao criar conta, você concorda com os
+        <a style="color:var(--gold);cursor:pointer">Termos de Uso</a> e a
+        <a style="color:var(--gold);cursor:pointer">Política de Privacidade</a>.
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn" onclick="doRegister()">Criar conta</button>
+      <p class="modal-switch">Já tem conta? <a onclick="switchModal('registerModal','loginModal')">Entrar</a></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ MODAL: RESERVA ═══════════ -->
+<div class="overlay" id="reserveModal">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h2 id="reserveTitle">Reservar quarto</h2>
+      <span class="brand-sm" id="reserveStepLabel">Passo 1 de 3</span>
+      <button class="modal-x" onclick="closeModal('reserveModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="steps-bar">
+        <div class="step-dot active" id="sd1"></div>
+        <div class="step-dot"        id="sd2"></div>
+        <div class="step-dot"        id="sd3"></div>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="rs1">
+        <div class="form-row">
+          <label>Tipo de quarto</label>
+          <div class="room-grid" id="roomGrid"></div>
+        </div>
+        <div class="form-2col">
+          <div class="form-row">
+            <label>Noites <span style="color:var(--gray-500);font-weight:400">(máx 20)</span></label>
+            <input type="number" id="resNights" min="1" max="20" value="3" oninput="calcCheckout()">
+            <div class="form-hint" id="nightsHint">3 noites</div>
+          </div>
+          <div class="form-row">
+            <label>Hóspedes</label>
+            <select id="resGuests">
+              <option value="1">1 pessoa</option>
+              <option value="2" selected>2 pessoas</option>
+              <option value="3">3 pessoas</option>
+              <option value="4">4 pessoas</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-2col">
+          <div class="form-row">
+            <label>Check-in</label>
+            <input type="date" id="resCheckin" onchange="calcCheckout()">
+          </div>
+          <div class="form-row">
+            <label>Check-out</label>
+            <input type="date" id="resCheckout" readonly style="background:var(--gray-100)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="rs2" style="display:none">
+        <p style="font-size:.85rem;color:var(--gray-700);margin-bottom:1.2rem">
+          Escolha como deseja pagar. Todas as transações são criptografadas.
+        </p>
+        <div class="form-row">
+          <label>Forma de pagamento</label>
+          <div class="pay-grid">
+            <div class="pay-opt" onclick="selPay(this,'Cartão de Débito')">
+              <span class="pi">💳</span><span>Débito</span>
+            </div>
+            <div class="pay-opt selected" onclick="selPay(this,'Cartão de Crédito')">
+              <span class="pi">💳</span><span>Crédito</span>
+            </div>
+            <div class="pay-opt" onclick="selPay(this,'PIX')">
+              <span class="pi">⚡</span><span>PIX</span>
+            </div>
+            <div class="pay-opt" onclick="selPay(this,'Boleto')">
+              <span class="pi">📄</span><span>Boleto</span>
+            </div>
+          </div>
+        </div>
+        <div id="cardFields">
+          <div class="form-row">
+            <label>Número do cartão</label>
+            <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" oninput="maskCard(this)">
+          </div>
+          <div class="form-2col">
+            <div class="form-row"><label>Validade</label><input type="text" placeholder="MM/AA" maxlength="5" oninput="maskExp(this)"></div>
+            <div class="form-row"><label>CVV</label><input type="text" placeholder="•••" maxlength="3"></div>
+          </div>
+          <div class="form-row"><label>Nome no cartão</label><input type="text" placeholder="Como aparece no cartão"></div>
+        </div>
+        <div id="pixInfo" style="display:none" class="notice">⚡ Código PIX gerado após confirmação. Válido por 30 minutos.</div>
+        <div id="boletoInfo" style="display:none" class="notice">📄 Boleto enviado ao seu e-mail. Vencimento em 3 dias úteis.</div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="rs3" style="display:none">
+        <p style="font-size:.85rem;color:var(--gray-700);margin-bottom:1rem">
+          Confirme os detalhes antes de finalizar.
+        </p>
+        <div class="summary-box">
+          <div class="sum-hotel" id="sumHotel">—</div>
+          <div class="sum-row"><span>Tipo de quarto</span><span id="sumRoom">—</span></div>
+          <div class="sum-row"><span>Hóspedes</span><span id="sumGuests">—</span></div>
+          <div class="sum-row"><span>Check-in</span><span id="sumCI">—</span></div>
+          <div class="sum-row"><span>Check-out</span><span id="sumCO">—</span></div>
+          <div class="sum-row"><span>Noites</span><span id="sumNights">—</span></div>
+          <div class="sum-row"><span>Diária</span><span id="sumDaily">—</span></div>
+          <div class="sum-row"><span>Pagamento</span><span id="sumPay">—</span></div>
+          <div class="sum-row total"><span>Total</span><span id="sumTotal">—</span></div>
+        </div>
+        <div class="notice">🔒 Cancelamento gratuito em até 48h antes do check-in.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn" id="resNextBtn" onclick="resNext()">Continuar →</button>
+      <button class="modal-btn-ghost" id="resBackBtn" onclick="resBack()" style="display:none">← Voltar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════ SCRIPTS ═══════════ -->
+<script>
+  /* ─────────────────────────────
+     CONFIG & STATE
+  ───────────────────────────── */
+  const API = '';  // mesmo servidor — rotas relativas
+
+  let allHotels    = [];
+  let currentUser  = null;
+  let selHotel     = null;
+  let selRoom      = null;
+  let selPayment   = 'Cartão de Crédito';
+  let resStep      = 1;
+  let pendingId    = null;
+  let activeSlide  = 0;
+  let slTimer      = null;
+
+  const ROOMS = [
+    {id:'standard', name:'Standard',  desc:'Cama queen, TV, Wi-Fi.',          extra:0},
+    {id:'superior', name:'Superior',  desc:'Vista parcial, cama king, cofre.', extra:80},
+    {id:'deluxe',   name:'Deluxe',    desc:'Vista pano., hidromassagem.',       extra:160},
+    {id:'suite',    name:'Suíte',     desc:'Sala de estar, varanda privativa.', extra:260},
+  ];
+
+  /* ─────────────────────────────
+     PAGE ROUTER
+  ───────────────────────────── */
+  function showPage(p) {
+    document.getElementById('homePage').style.display    = p==='home' ? 'block':'none';
+    document.getElementById('confirmPage').style.display = p==='confirm' ? 'block':'none';
+    document.getElementById('navbar').className = p==='home' ? 'scrolled' : 'light';
+    window.scrollTo(0,0);
+  }
+
+  /* ─────────────────────────────
+     API HELPERS
+  ───────────────────────────── */
+  async function apiFetch(path, opts={}) {
+    try {
+      const r = await fetch(API + path, {
+        headers:{'Content-Type':'application/json'},
+        ...opts
+      });
+      return await r.json();
+    } catch(e) {
+      console.error('API error', path, e);
+      return null;
+    }
+  }
+
+  /* ─────────────────────────────
+     LOAD HOTELS
+  ───────────────────────────── */
+  async function loadHotels() {
+    const data = await apiFetch('/api/hotels');
+    if (data && data.hotels) {
+      allHotels = data.hotels;
+    } else {
+      // fallback estático se backend não disponível
+      allHotels = FALLBACK_HOTELS;
+    }
+    renderHotels(allHotels);
+    buildSlider(allHotels);
+  }
+
+  /* ─────────────────────────────
+     HERO SLIDER
+  ───────────────────────────── */
+  function buildSlider(hotels) {
+    const cont = document.getElementById('slides');
+    const tabs  = document.getElementById('hotelTabs');
+    cont.innerHTML = '';
+    tabs.innerHTML = '';
+
+    hotels.slice(0,8).forEach((h, i) => {
+      // slide
+      const slide = document.createElement('div');
+      slide.className = 'slide' + (i===0?' active':'');
+      slide.innerHTML = `
+        <div class="slide-bg" style="background-image:url('static/images/${h.hero_image||h.image}')"></div>
+        <div class="slide-crumb">${h.region} / <a>${h.name}</a></div>
+      `;
+      cont.appendChild(slide);
+
+      // tab
+      const btn = document.createElement('button');
+      btn.className = 'hotel-tab' + (i===0?' active':'');
+      btn.textContent = h.name;
+      btn.dataset.idx = i;
+      btn.onclick = () => goToSlide(i);
+      tabs.appendChild(btn);
+    });
+
+    startSliderTimer();
+  }
+
+  function goToSlide(idx) {
+    const slides = document.querySelectorAll('.slide');
+    const tabs   = document.querySelectorAll('.hotel-tab');
+    slides.forEach((s,i) => s.classList.toggle('active', i===idx));
+    tabs.forEach((t,i) => t.classList.toggle('active', i===idx));
+    document.getElementById('slCur').textContent = String(idx+1).padStart(2,'0');
+    activeSlide = idx;
+  }
+
+  function startSliderTimer() {
+    clearInterval(slTimer);
+    slTimer = setInterval(() => {
+      const total = document.querySelectorAll('.slide').length;
+      goToSlide((activeSlide+1) % total);
+    }, 5000);
+  }
+
+  document.getElementById('slNext').addEventListener('click', () => {
+    const total = document.querySelectorAll('.slide').length;
+    goToSlide((activeSlide+1) % total);
+    startSliderTimer();
+  });
+  document.getElementById('slPrev').addEventListener('click', () => {
+    const total = document.querySelectorAll('.slide').length;
+    goToSlide((activeSlide - 1 + total) % total);
+    startSliderTimer();
+  });
+
+  /* ─────────────────────────────
+     RENDER HOTEL CARDS
+  ───────────────────────────── */
+  function renderHotels(hotels) {
+    const el = document.getElementById('hotelsList');
+    document.getElementById('hotelsCount').textContent =
+      hotels.length + ' propriedade' + (hotels.length !== 1 ? 's' : '') + ' encontrada' + (hotels.length !== 1 ? 's' : '');
+
+    el.innerHTML = hotels.map(h => `
+      <div class="hotel-card">
+        <div class="card-img">
+          ${h.badge ? `<div class="card-badge">${h.badge}</div>` : ''}
+          <img src="static/images/${h.image}" alt="${h.name}" loading="lazy"
+               onerror="this.style.background='#2a2825';this.alt=''">
+        </div>
+        <div class="card-body">
+          <div>
+            <div class="card-name">${h.name}</div>
+            <div class="card-loc">📍 ${h.location}</div>
+            <div class="card-stars">
+              ${[1,2,3,4,5].map(s=>`<span class="star${s<=h.stars?'':' empty'}">★</span>`).join('')}
+            </div>
+            <div style="height:.5rem"></div>
+            <div class="card-desc">${h.description}</div>
+            <div class="card-tags">
+              ${h.amenities.map(a=>`<span class="card-tag">${a}</span>`).join('')}
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="card-price">
+              <div class="from">a partir de</div>
+              <div>
+                <span class="amount">R$ ${h.price.toLocaleString('pt-BR')}</span>
+                <span class="period"> /noite</span>
+              </div>
+            </div>
+            <button class="card-btn" onclick="handleReserve(${h.id})">Reservar agora</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  /* ─────────────────────────────
+     SEARCH / SORT / FILTER
+  ───────────────────────────── */
+  function doSearch() {
+    document.getElementById('listingSection').scrollIntoView({behavior:'smooth'});
+  }
+  function scrollToListing() {
+    document.getElementById('listingSection').scrollIntoView({behavior:'smooth'});
+  }
+  function updatePrice(v) {
+    document.getElementById('priceVal').textContent = 'R$ ' + v;
+    const filtered = allHotels.filter(h => h.price <= parseInt(v));
+    renderHotels(filtered);
+  }
+  function sortHotels(mode) {
+    const clone = [...allHotels];
+    if (mode === 'price_asc')  clone.sort((a,b) => a.price - b.price);
+    if (mode === 'price_desc') clone.sort((a,b) => b.price - a.price);
+    if (mode === 'stars')      clone.sort((a,b) => b.stars - a.stars);
+    renderHotels(clone);
+  }
+
+  /* ─────────────────────────────
+     RESERVATION FLOW
+  ───────────────────────────── */
+  function handleReserve(id) {
+    if (!currentUser) {
+      openModal('loginModal');
+      pendingId = id;
+      return;
+    }
+    openReservation(id);
+  }
+
+  function openReservation(id) {
+    selHotel = allHotels.find(h => h.id === id);
+    selRoom  = ROOMS[0];
+    selPayment = 'Cartão de Crédito';
+    resStep  = 1;
+    document.getElementById('reserveTitle').textContent = selHotel.name;
+    renderRooms();
+
+    const today = new Date();
+    document.getElementById('resCheckin').value  = fmtDate(today);
+    document.getElementById('resNights').value   = 3;
+    document.getElementById('nightsHint').textContent = '3 noites';
+    calcCheckout();
+    setResStep(1);
+    openModal('reserveModal');
+  }
+
+  function calcCheckout() {
+    const n  = Math.max(1, Math.min(20, parseInt(document.getElementById('resNights').value)||1));
+    const ci = document.getElementById('resCheckin').value;
+    if (ci) {
+      document.getElementById('resCheckout').value = fmtDate(addDays(new Date(ci), n));
+    }
+    document.getElementById('nightsHint').textContent = n + ' noite' + (n>1?'s':'');
+  }
+
+  function renderRooms() {
+    document.getElementById('roomGrid').innerHTML = ROOMS.map(r => `
+      <div class="room-card${r.id===selRoom.id?' selected':''}" onclick="pickRoom('${r.id}')">
+        <div class="room-check">✓</div>
+        <h5>${r.name}</h5>
+        <p>${r.desc}</p>
+        <div class="room-price">R$ ${selHotel.price + r.extra}<small style="font-size:.72rem;font-weight:400;color:var(--gray-500)">/noite</small></div>
+      </div>
+    `).join('');
+  }
+
+  function pickRoom(id) {
+    selRoom = ROOMS.find(r => r.id === id);
+    renderRooms();
+  }
+
+  function selPay(el, name) {
+    document.querySelectorAll('.pay-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    selPayment = name;
+    const isCard = name.includes('Cartão');
+    document.getElementById('cardFields').style.display  = isCard ? 'block' : 'none';
+    document.getElementById('pixInfo').style.display     = name === 'PIX' ? 'block' : 'none';
+    document.getElementById('boletoInfo').style.display  = name === 'Boleto' ? 'block' : 'none';
+  }
+
+  function getTotal() {
+    const n = Math.max(1, parseInt(document.getElementById('resNights').value)||1);
+    const price = selHotel.price + selRoom.extra;
+    return { n, price, total: n * price };
+  }
+
+  function fillSummary() {
+    const {n, price, total} = getTotal();
+    const ci = document.getElementById('resCheckin').value;
+    const co = document.getElementById('resCheckout').value;
+    const g  = document.getElementById('resGuests').value;
+    document.getElementById('sumHotel').textContent   = selHotel.name;
+    document.getElementById('sumRoom').textContent    = selRoom.name;
+    document.getElementById('sumGuests').textContent  = g + ' pessoa' + (g>1?'s':'');
+    document.getElementById('sumCI').textContent      = ci ? fmtBR(ci) : '—';
+    document.getElementById('sumCO').textContent      = co ? fmtBR(co) : '—';
+    document.getElementById('sumNights').textContent  = n + ' noite' + (n>1?'s':'');
+    document.getElementById('sumDaily').textContent   = 'R$ ' + price.toLocaleString('pt-BR');
+    document.getElementById('sumPay').textContent     = selPayment;
+    document.getElementById('sumTotal').textContent   = 'R$ ' + total.toLocaleString('pt-BR');
+  }
+
+  function setResStep(s) {
+    resStep = s;
+    ['rs1','rs2','rs3'].forEach((id,i) =>
+      document.getElementById(id).style.display = i===s-1 ? 'block':'none');
+    document.getElementById('reserveStepLabel').textContent = `Passo ${s} de 3`;
+    document.getElementById('resBackBtn').style.display = s>1 ? 'block':'none';
+    document.getElementById('resNextBtn').textContent   = s===3 ? 'Confirmar reserva ✓' : 'Continuar →';
+    ['sd1','sd2','sd3'].forEach((id,i) => {
+      const el = document.getElementById(id);
+      el.classList.toggle('done',   i < s-1);
+      el.classList.toggle('active', i === s-1);
+    });
+    if (s===3) fillSummary();
+  }
+
+  function resNext() {
+    if (resStep === 3) { confirmReservation(); return; }
+    setResStep(resStep + 1);
+  }
+  function resBack() { if (resStep > 1) setResStep(resStep - 1); }
+
+  async function confirmReservation() {
+    const {n, price, total} = getTotal();
+    const ci = document.getElementById('resCheckin').value;
+    const co = document.getElementById('resCheckout').value;
+    const g  = document.getElementById('resGuests').value;
+
+    const payload = {
+      hotel_id:  selHotel.id,
+      room_id:   selRoom.id,
+      guests:    g,
+      checkin:   ci,
+      checkout:  co,
+      payment:   selPayment,
+      email:     currentUser ? currentUser.email : '',
+    };
+
+    const res = await apiFetch('/api/reservations', {
+      method:'POST', body: JSON.stringify(payload)
+    });
+
+    const code  = res ? res.code  : 'OSP-' + Math.random().toString(36).substr(2,8).toUpperCase();
+    const tot   = res ? res.total : total;
+    const nights= res ? res.nights: n;
+    const rName = res ? res.room  : selRoom.name;
+    const rPay  = res ? res.payment : selPayment;
+
+    closeModal('reserveModal');
+    document.getElementById('confName').textContent    = selHotel.name;
+    document.getElementById('confCode').textContent    = code;
+    document.getElementById('confRoom').textContent    = rName;
+    document.getElementById('confGuests').textContent  = g + ' pessoa' + (g>1?'s':'');
+    document.getElementById('confPeriod').textContent  = fmtBR(ci) + ' → ' + fmtBR(co);
+    document.getElementById('confNights').textContent  = nights + ' noite' + (nights>1?'s':'');
+    document.getElementById('confPay').textContent     = rPay;
+    document.getElementById('confTotal').textContent   = 'R$ ' + tot.toLocaleString('pt-BR');
+    showPage('confirm');
+  }
+
+  /* ─────────────────────────────
+     AUTH
+  ───────────────────────────── */
+  async function doLogin() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPass').value;
+    if (!email || !pass) { alert('Preencha todos os campos.'); return; }
+
+    const res = await apiFetch('/api/auth/login', {
+      method:'POST', body: JSON.stringify({email, password:pass})
+    });
+
+    if (res && res.error) { alert(res.error); return; }
+
+    currentUser = res ? {name:res.name, email:res.email} : {name:email.split('@')[0], email};
+    closeModal('loginModal');
+    updateNavUser();
+    if (pendingId) { const id=pendingId; pendingId=null; setTimeout(()=>openReservation(id),200); }
+  }
+
+  async function doRegister() {
+    const name  = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim();
+    const cpf   = document.getElementById('regCpf').value.trim();
+    const pass  = document.getElementById('regPass').value;
+    const conf  = document.getElementById('regPassConf').value;
+    let ok = true;
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showErr('regEmailErr'); ok=false; } else hideErr('regEmailErr');
+    if (cpf.replace(/\D/g,'').length !== 11)        { showErr('regCpfErr');   ok=false; } else hideErr('regCpfErr');
+    if (pass !== conf || pass.length < 6)            { showErr('regPassErr');  ok=false; } else hideErr('regPassErr');
+    if (!name || !ok) return;
+
+    const res = await apiFetch('/api/auth/register', {
+      method:'POST', body: JSON.stringify({name, email, cpf, password:pass})
+    });
+
+    if (res && res.error) { alert(res.error); return; }
+
+    currentUser = {name, email};
+    closeModal('registerModal');
+    updateNavUser();
+    if (pendingId) { const id=pendingId; pendingId=null; setTimeout(()=>openReservation(id),200); }
+  }
+
+  function updateNavUser() {
+    if (!currentUser) return;
+    const nr = document.getElementById('navRight');
+    nr.innerHTML = `
+      <div id="navUser">
+        <div id="navUserDot"></div>
+        <span>${cap(currentUser.name)}</span>
+      </div>`;
+  }
+
+  /* ─────────────────────────────
+     MODAL HELPERS
+  ───────────────────────────── */
+  function openModal(id)   { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+  function closeModal(id)  { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+  function switchModal(a,b){ closeModal(a); setTimeout(()=>openModal(b),130); }
+  document.querySelectorAll('.overlay').forEach(el =>
+    el.addEventListener('click', e => { if(e.target===el) closeModal(el.id); })
+  );
+
+  /* ─────────────────────────────
+     FORM MASKS & HELPERS
+  ───────────────────────────── */
+  function maskCpf(el){
+    let v=el.value.replace(/\D/g,'').slice(0,11);
+    if(v.length>9) v=v.replace(/(\d{3})(\d{3})(\d{3})(\d+)/,'$1.$2.$3-$4');
+    else if(v.length>6) v=v.replace(/(\d{3})(\d{3})(\d+)/,'$1.$2.$3');
+    else if(v.length>3) v=v.replace(/(\d{3})(\d+)/,'$1.$2');
+    el.value=v;
+  }
+  function maskCard(el){ let v=el.value.replace(/\D/g,'').slice(0,16); el.value=v.replace(/(\d{4})/g,'$1 ').trim(); }
+  function maskExp(el){  let v=el.value.replace(/\D/g,'').slice(0,4); if(v.length>2) v=v.replace(/(\d{2})(\d+)/,'$1/$2'); el.value=v; }
+  function togglePw(id,btn){ const el=document.getElementById(id); if(el.type==='password'){el.type='text';btn.textContent='🙈';}else{el.type='password';btn.textContent='👁';} }
+  function showErr(id){ document.getElementById(id)?.classList.add('show'); }
+  function hideErr(id){ document.getElementById(id)?.classList.remove('show'); }
+  function checkStr(v){
+    const fill=document.getElementById('strFill'), lbl=document.getElementById('strLabel');
+    if(!v){ fill.style.width='0'; lbl.textContent='Digite uma senha'; return; }
+    let s=0;
+    if(v.length>=8) s++; if(/[A-Z]/.test(v)) s++; if(/\d/.test(v)) s++; if(/[^A-Za-z0-9]/.test(v)) s++;
+    const l=[['0%',''],['25%','Fraca','#e24b4a'],['50%','Regular','#ef9f27'],['75%','Boa','#639922'],['100%','Forte','#1d9e75']][s];
+    fill.style.width=l[0]; fill.style.background=l[2]||''; lbl.textContent=s===0?'Muito curta':l[1];
+  }
+
+  /* ─────────────────────────────
+     DATE HELPERS
+  ───────────────────────────── */
+  function fmtDate(d){ return d.toISOString().split('T')[0]; }
+  function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+  function fmtBR(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+  /* ─────────────────────────────
+     NAVBAR SCROLL
+  ───────────────────────────── */
+  window.addEventListener('scroll', () => {
+    const nb = document.getElementById('navbar');
+    if (window.scrollY > 60) { nb.classList.add('scrolled'); }
+    else { nb.classList.remove('scrolled'); }
+  });
+
+  /* MOBILE MENU */
+  function toggleMobileMenu(){
+    document.getElementById('hamBtn').classList.toggle('open');
+  }
+
+  /* ─────────────────────────────
+     DATE RANGE PICKER
+  ───────────────────────────── */
+  $(function(){
+    $('#bbDates').daterangepicker({
+      startDate: moment(),
+      endDate:   moment().add(3,'days'),
+      locale:{ format:'DD/MM/YYYY', separator:' → ', applyLabel:'Confirmar', cancelLabel:'Cancelar', daysOfWeek:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'], monthNames:['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'] }
+    });
+  });
+
+  /* ─────────────────────────────
+     FALLBACK DATA (sem backend)
+  ───────────────────────────── */
+  const FALLBACK_HOTELS = [
+    {id:1,name:'Grand Paulista',location:'Av. Paulista, Bela Vista',region:'Paulista',stars:5,badge:'Destaque',price:689,description:'Majestoso hotel de 5 estrelas no coração da Avenida Paulista. Piscina aquecida panorâmica, spa completo e restaurante assinado pelo chef Hugo Conti. Vista privilegiada para o skyline da cidade.',amenities:['Spa','Piscina','Academia','Restaurante','Bar'],image:'hotel16.jpg',hero_image:'hotel15.jpg'},
+    {id:2,name:'Jardins Boutique',location:'R. Haddock Lobo, Jardins',region:'Jardins',stars:5,badge:'Melhor Avaliado',price:571,description:'Propriedade boutique de luxo com apenas 42 suítes exclusivas. Decoração contemporânea brasileira, jardim privativo e serviço de mordomo 24 horas. Refúgio preferido de executivos e celebridades.',amenities:['Concierge','Wi-Fi 1Gb','Bar Exclusivo'],image:'hotel18.jpg',hero_image:'hotel13.jpg'},
+    {id:3,name:'Ibirapuera Palace',location:'Av. Brasil, Ibirapuera',region:'Ibirapuera',stars:4,badge:null,price:449,description:'Localizado a 300 metros do Parque Ibirapuera, oferece ambiente tranquilo com infraestrutura completa. Transfer para aeroporto incluso.',amenities:['Academia','Wi-Fi','Transfer','Café'],image:'hotel17.jpg',hero_image:'hotel19.jpg'},
+    {id:4,name:'Vila Madalena Arts Hotel',location:'R. Aspicuelta, Vila Madalena',region:'Pinheiros',stars:4,badge:'Novo',price:395,description:'Hotel temático no bairro mais criativo de São Paulo. Quartos decorados por artistas locais, galeria de arte no lobby.',amenities:['Arte','Wi-Fi','Bar','Galeria'],image:'hotel8.webp',hero_image:'hotel6.webp'},
+    {id:5,name:'Consolação Executive',location:'R. da Consolação, Centro',region:'Paulista',stars:4,badge:null,price:371,description:'Hotel business de excelência com salas de reunião modernas, auditório para 200 pessoas. Solução completa para viagens corporativas.',amenities:['Business','Wi-Fi','Auditório','Café'],image:'hotel9.webp',hero_image:'hotel9.webp'},
+    {id:6,name:'Higienópolis Grand',location:'Av. Higienópolis, Higienópolis',region:'Jardins',stars:5,badge:null,price:749,description:'O hotel mais luxuoso de São Paulo. Suítes de até 320 m², coleção particular de arte, dois restaurantes premiados.',amenities:['Spa Ultra','Piscina Aquecida','Restaurante','Lounge VIP'],image:'hotel13.jpg',hero_image:'hotel16.jpg'},
+    {id:7,name:'Morumbi Heights',location:'Av. Giovanni Gronchi, Morumbi',region:'Ibirapuera',stars:4,badge:null,price:488,description:'Moderno hotel com vista para o Rio Pinheiros e o skyline sul da cidade. Rooftop bar com coquetéis artesanais.',amenities:['Rooftop','Piscina Infinity','Wi-Fi','Academia'],image:'hotel19.jpg',hero_image:'hotel17.jpg'},
+    {id:8,name:'Liberdade Orient',location:'Praça da Liberdade, Liberdade',region:'Paulista',stars:4,badge:'Exclusivo',price:425,description:'Hotel temático no bairro japonês de SP. Onsen privativo, restaurante nipo-brasileiro e jardim zen.',amenities:['Onsen','Jardim Zen','Restaurante','Wi-Fi'],image:'hotel15.jpg',hero_image:'hotel18.jpg'},
+  ];
+
+  /* ─────────────────────────────
+     INIT
+  ───────────────────────────── */
+  loadHotels();
+</script>
+</body>
+</html>
